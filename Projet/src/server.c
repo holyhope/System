@@ -1,5 +1,15 @@
+#include <errno.h>
+#include <netinet/in.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <sys/socket.h>
+#include <sys/types.h>
+#include <unistd.h>
+
 #include "server.h"
 
+#define BUFSIZE 1024
 
 /* obtenir une socket en ecoute */
 
@@ -172,3 +182,5 @@ int main(int argc, char *argv[]){
 	exit(EXIT_SUCCESS);
 
 }*/
+
+#undef BUFSIZE

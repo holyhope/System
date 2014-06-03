@@ -7,100 +7,74 @@
 #include <sys/types.h>
 #include <unistd.h>
 
-typedef enum {
-	NAM=220,
-	ADD=201, 
-	GET=224,
-	FOL=225,
-	FQR=233,
-	CLE=212,
-	ALL=217
-}ACTION;
-	
-int connect_client(int sockfd){
+#define PORT_DEFAULT 1963
+#define ADDR_DEFAULT "localhost"
 
-	int clientfd;
-	struct sockaddr_in socket;
+struct sockaddr_in get_socket( const char *host, int port ) {
+	struct sockaddr_in s_addr;
+	struct hostent *h;
+	int size;
 
-	if(-1 == clientfd(connect(sockfd,(struct sockaddr *)(&socket),sizeof(struct sockaddr_in)))){
-		perror("client: connect_client");
-		exit(EXIT_FAILURE);
-
+	if ( NULL == ( h = gethostbyname( host ) ) ) {
+		perror( "gethostbyname" );
+		exit( EXIT_FAILURE );
 	}
 
-	return clientfd;
+	s_addr.sin_family = AF_INET;
+	s_addr.sin_port = htons( port );
+	s_addr.sin_addr = *( struct in_addr * ) h->h_addr;
+	size = sizeof (struct sockaddr) - /* Remplissage */
+		sizeof( sa_family_t ) - /* jusqu'a */
+		sizeof( in_port_t ) - /* la taille de */
+		sizeof( struct in_addr );
 
+	memset( s_addr.sin_zero, 0, size );
+
+	return s_addr;
 }
 
+struct sockaddr_in open_socket( const char *host, int port ) {
+	struct sockaddr_in s_addr = get_socket( host, port );
+	int sockfd = socket( AF_INET, SOCK_STREAM, 0 );
+	if ( -1 == sockfd ) {
+		perror( "socket" );
+		exit( EXIT_FAILURE );
+	}
+	if ( -1 == connect( sockfd, (struct sockaddr *)&s_addr, sizeof( s_addr ) ) ) {
+		perror( "connect" );
+		exit( EXIT_FAILURE );
+	}
+	return s_addr;
+}
 
+int main( int argc, const char *argv[] ) {
+	int size;
+	int sockfd;
+	int port = PORT_DEFAULT;
+	struct sockaddr_in s_addr;
+	char buffer[ BUFFER_SIZE ];
 
-
-int action_to_num(char *action){
-
-	return action[0]+action[1]+action[2];
-
-}	
-
-
-int send_request(int sockfd,char *buf){
-
-	int fd;
-	int id;
-	char action[3];
-	char *newbuf;
-
-	if(-1 == strncpy(action,3,buf)){
-		perror("client: strncpy");
+	if ( argc < 2 || argc > 3 ) {
+		fprintf( stderr, "Usage: %s <adresse> [port]\n", *argv );
 		return 1;
 	}
 
-	ACTION = action_to_num(action);
-
-/*	switch(ACTION) {
-		case NAM:
-			if (-1 == send(sockfd,action,sizeof(action),0)){
-				perror("client: NAM");
-				return 1;
-			}
-
-		case ADD:
-
-			if (-1 == send(sockfd,buf,sizeof(buf),0)){
-				perror("client: ADD");
-				return 1;
-
-		case GET:
-			if (-1 == send(sockfd,action,sizeof(action),0)){
-				perror("client: GET");
-				return 1;
-
-		case FOL:
-			if (-1 == send(sockfd,action,sizeof(action),0)){
-				perror("client: FOL");
-				return 1;
-			}
-			
-		case FQR:
-			if (-1 == send(sockfd,action,sizeof(action),0)){
-				perror("client: FQR");
-				return 1;
-			}
-
-		case CLE:
-			if (-1 == send(sockfd,action,sizeof(action),0)){
-				perror("client: CLE");
-				return 1;
-			}
-
-		case ALL:
-			if (-1 == send(sockfd,action,sizeof(action),0)){
-				perror("client: ALL");
-				return 1;
-			}
-
+	if ( argc == 3 ) {
+		port = atoi( argv[2] );
 	}
-*/
 
-	return ACTION;
+	sockfd = socket( AF_INET, SOCK_STREAM, 0 );
+	s_addr = connect_socket( sockfd, argv[1], port );
 
+	do {
+		size = read( sockfd, buffer, BUFFER_SIZE );
+		write( STDOUT_FILENO, buffer, size );
+		if ( buffer[ size - 1 ] == EOF ) {
+			break;
+		}
+		size = read ( STDIN_FILENO, buffer, BUFFER_SIZE );
+		write ( sockfd, buffer, size );
+	} while ( 1 );
+
+	return 0;
 }
