@@ -127,11 +127,15 @@ int get_datas(int sockfd,char *buf){
 	}
 */
 
-
-
-
-
-
+void save_pid() {
+	FILE *fd;
+  if ( NULL == ( fd = fopen( ".serverpid", "w" ) ) ) {
+		perror( "open" );
+		exit( EXIT_FAILURE );
+  }
+  fprintf( fd, "%d", getpid() );
+  fclose( fd );
+}
 
 int begin(int argc,char *argv[]){
 
