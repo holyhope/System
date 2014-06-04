@@ -14,7 +14,6 @@ int truncate_string(char *msg){
 	return size;
 }
 
-/*Permet d'initialiser la structure d'utilisateur*/
 void init_users(){
 	int i;
 
@@ -24,7 +23,6 @@ void init_users(){
 	}
 }
 
-/*Echange dans la liste deux utilisateurs*/
 void swap_user(Users *first, Users *second){
 	Users temp;
 
@@ -33,7 +31,6 @@ void swap_user(Users *first, Users *second){
 	*second=temp;
 }
 
-/*Creer un utilisateur */
 int create_user(unsigned short ID, char *login){
 	int size=truncate_string(login);
 	error=0;
@@ -43,18 +40,17 @@ int create_user(unsigned short ID, char *login){
 		return error;
 	}
 	connected[numberOfUsers].ID=ID;
-	if(NULL == (connected[numberOfUsers].login = malloc(sizeof(char)*size))) {
+	if ( NULL == (connected[numberOfUsers].login = malloc(sizeof(char)*size))) {
 		error = 70;
 	}
-	if(NULL==strncpy(connected[numberOfUsers].login,login,size)){
+	if ( NULL == strncpy(connected[numberOfUsers].login,login,size) ) {
 		/* A retoucher */
-		error=70;
+		error = 70;
 	}
 	numberOfUsers++;
 	return error;
 }
 
-/*Recherche un utilisateur existant*/
 int search_user(unsigned short ID){
 	int i;
 
@@ -66,7 +62,6 @@ int search_user(unsigned short ID){
 	return -1;
 }
 
-/*Affiche un utilisateur en particulier*/
 void print_user(Users user, unsigned short ID){
 	char message[SIZE_BUFFER];
 	snprintf(message,strlen(user.login)+16,"--> %s (%d)\n",user.login,user.ID);
@@ -76,7 +71,6 @@ void print_user(Users user, unsigned short ID){
     }
 }
 
-/*Affiche tous les utilisateurs*/
 void print_all_user(unsigned short ID){
 	int i;
 
@@ -85,7 +79,6 @@ void print_all_user(unsigned short ID){
 	}	
 }
 
-/*Supprime un utilisateur en particulier*/
 void delete_user(unsigned short ID){
 	int num;
 
@@ -97,7 +90,6 @@ void delete_user(unsigned short ID){
 	} 
 }
 
-/*Supprime tous les utilisateurs. En vue de la suppression du serveur*/
 void delete_all_users(){
 	int i;
 
