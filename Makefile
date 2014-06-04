@@ -45,10 +45,15 @@ $(project): $(SRC_FOLDER)/$(project).c $(objects) $(BIN_FOLDER)
 doc.pdf: $(DOC_FOLDER)/doc.tex
 	pdflatex -output-directory $(DOC_FOLDER) $^
 	mv $(DOC_FOLDER)/$@ .
+	
+doxygen:
+	doxygen
 
 clean:
 	rm -f $(OBJ_FOLDER)/*
 	rm -f $(DOC_FOLDER)/doc.{aux,log,toc}
+	rm -rf $(DOC_FOLDER)/html
+	rm -rf $(DOC_FOLDER)/latex
 
 mrproper: clean
 	rm -f $(BIN_FOLDER)/*
