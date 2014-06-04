@@ -1,34 +1,54 @@
 CC = gcc
-CFLAGS = -Wall -pedantic -g
-LDFLAGS =
-project = foo_bar
-bin = bin
-doc = doc
-src = src
+project = Feugueur_Glevarec_Peronnet
+
+BIN_FOLDER = bin
+DOC_FOLDER = doc
+SRC_FOLDER = src
+OBJ_FOLDER = objects
+HEADER_FOLDER = include
+
 objects := $(foreach obj, \
+	follow.o \
+	server.o \
+	users.o \
 	data.o \
-	server.o\
-	, $(src)/$(obj))
+	log.o \
+	, $(OBJ_FOLDER)/$(obj))
 
-default: $(bin)/$(project)
+CFLAGS = -Wall -pedantic -g
+LDFLAGS = -I$(HEADER_FOLDER)/
 
-%.o: %.c %.h
-	$(CC) -c $(CFLAGS) -o $@ $<
+default: $(project)
 
-$(bin):
-	mkdir $(bin)
+$(BIN_FOLDER):
+	mkdir $(BIN_FOLDER)
+	
+$(HEADER_FOLDER):
+	mkdir $(HEADER_FOLDER)
+	
+$(SRC_FOLDER):
+	mkdir $(SRC_FOLDER)
+	
+$(OBJ_FOLDER):
+	mkdir $(OBJ_FOLDER)
 
-$(bin)/$(project): $(src)/$(project).c $(objects) $(bin)
-	$(CC) $(CFLAGS) -o $@ $< $(objects) $(LDFLAGS)
+$(OBJ_FOLDER)/%.o: $(SRC_FOLDER)/%.c $(HEADER_FOLDER)/%.h $(OBJ_FOLDER)
+	$(CC) -c $(CFLAGS) -o $@ $< $(LDFLAGS)
 
-doc.pdf: $(doc)/doc.tex
-	pdflatex -output-directory $(doc) $^
-	pdflatex -output-directory $(doc) $^
-	mv $(doc)/$@ .
+%.c: $(SRC_FOLDER)
 
-.PHONY: clean
+%.h: $(HEADER_FOLDER)
+
+$(project): $(SRC_FOLDER)/$(project).c $(objects) $(BIN_FOLDER)
+	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $< $(objects)
+
+doc.pdf: $(DOC_FOLDER)/doc.tex
+	pdflatex -output-directory $(DOC_FOLDER) $^
+	mv $(DOC_FOLDER)/$@ .
 
 clean:
-	rm -rf $(bin)
-	rm -f $(src)/*.o
-	rm -f $(doc)/doc.{aux,log,toc}
+	rm -f $(OBJ_FOLDER)/*
+	rm -f $(DOC_FOLDER)/doc.{aux,log,toc}
+
+mrproper: clean
+	rm -f $(BIN_FOLDER)/*

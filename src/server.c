@@ -13,45 +13,20 @@
 #define SIZE 256
 #define BUFFER_SIZE 256
 
-/*
-typedef enum {
-    NAM=220,
-    ADD=201,
-    GET=224,
-    FOL=225,
-    FQR=233,
-    CLE=212,
-    ALL=217
-}ACTION;
+fd_set master_set;
+int max_sd;
 
+typedef enum{NAM,ADD,GET,FOL,FQR,CLE,ALL,END,NONE} Command;
 
-                        ID=search_user(i);
-                        command_send(220,i);
-                        rc = snprintf(message,len+strlen(connected[ID].login)+3, "[%s] %s", connected[ID].login, buffer);
-                        writening_log(i,message);
-                        
-
-                        for(j = 4; j <= max_sd; j++){
-                            if(FD_ISSET(j, &master_set) && i!=j){
-                                if(-1 == (rc = send(j, message, rc, 0))){
-                                    perror("SEND");
-                                    exit(EXIT_FAILURE);
-                                }
-                                printf("  Sended to %d\n", j);
-                            }
-                        }*/
-
- fd_set master_set;
- int max_sd;
-
+Command command;
 
 void send_message(int fd, char *buffer){
     int ID=search_user(fd);
-    char message[BUFFER_SIZE]={'\0'};
-    int i,size=truncate_string(buffer);
+    char message[BUFFER_SIZE];
+    int i,size = truncate_string( buffer );
 
-    size=snprintf(message,size+strlen(connected[ID].login)+4, "[%s] %s" , connected[ID].login, buffer);
-    writening_log(fd,message);
+    size = snprintf( message, BUFFER_SIZE, "[%s] %s" , connected[ID].login, buffer );
+    writing_log(fd,message);
 
     for(i=4 ; i < max_sd ; i++ ){
         if(FD_ISSET(i,&master_set) && i!=fd && search_follow(connected[ID].following,fd)){
@@ -61,44 +36,80 @@ void send_message(int fd, char *buffer){
             }
         }
     }
-     
 }
 
-void command_send(int command, int fd, char *buffer){
+char* parser(char *buffer){
+    char *msg;
+    int size=truncate_string(buffer);
+    int i;
+    command=-1;
+    msg=malloc(sizeof(char)*size-4);
+
+    for(i=0 ; i < size-4 ; i++){
+        msg[i]=buffer[i+4];
+    }
+    
+    if(strncmp(buffer,"NAM",3)==0){
+        command = NAM;
+    } else if(strncmp(buffer,"ADD",3)==0){
+        command = ADD;
+    } else if(strncmp(buffer,"GET",3)==0){
+        command = GET;
+    } else if(strncmp(buffer,"FOL",3)==0){
+        command = FOL;
+    } else if(strncmp(buffer,"FQR",3)==0){
+        command = FQR;
+    } else if(strncmp(buffer,"CLE",3)==0){
+        command = CLE;
+    } else if(strncmp(buffer,"ALL",3)==0){
+        command = ALL;
+    } else if(strncmp(buffer,"END",3)==0){
+        command = END;
+    }
+    return msg;
+}
+
+void command_send(int fd, char *buffer){
     int size;
+    char msg[BUFFER_SIZE];
+    int ID=search_user(fd);
 
     switch(command) {
-        case 220: 
-            if(-1 == send(fd,"List of connected\n",20, 0)){
-                perror("SEND");
-                exit(EXIT_FAILURE);
+        case NAM: 
+            if (-1 == send( fd,"List of connected\n",20, 0 ) ) {
+                perror( "SEND" );
+                exit( EXIT_FAILURE );
             }
             print_all_user(fd);
             break;
-
-        case 201: 
+        case ADD:
             send_message(fd,buffer);
             break;
-
-        case 224: 
-
-            break;
-
-        case 225: 
+        case GET: 
             size=truncate_string(buffer);
-            
-            add_follow(&connected[fd].following,5);
+            snprintf(msg,size,"%s",buffer);
+            reading_log(strtol(msg,NULL,10));
             break;
-            
-       /* case FQR: break;
-
-        case CLE: break;
-
-        case ALL: break;*/
+        case FOL: 
+            size=truncate_string(buffer);
+            snprintf(msg,size,"%s",buffer);
+            add_follow(&connected[ID].following,strtol(msg,NULL,10));
+            break;
+        case FQR: 
+            break;
+        case CLE: 
+            free_all_follow(&connected[search_user(fd)].following);
+            break;
+        case ALL:
+			break;
+        case END:
+            delete_user(fd);
+            exit(EXIT_SUCCESS);
+            break;
         default: break;
 
     }
-
+    command = NONE;
 }
  
 struct sockaddr_in init_socket(int port) {
@@ -122,6 +133,7 @@ int create_socket(int port) {
     struct sockaddr_in sockaddr = init_socket(port);
     int  rc;
     char buffer[BUFFER_SIZE];
+    char *message;
     fd_set working_set;
     struct timeval timeout;
     int listen_sd,new_sd;
@@ -210,8 +222,8 @@ int create_socket(int port) {
                     }
  
                     else{
-                        command_send(220,i,buffer);
-                        command_send(201,i,buffer);
+                        message = parser(buffer);
+                        command_send(i,message);
                     }
                 }
  

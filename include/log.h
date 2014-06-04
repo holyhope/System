@@ -1,6 +1,5 @@
 #ifndef __LOG_H
 #define __LOG_H
-#define _BSD_SOURCE
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -45,9 +44,15 @@ void read_log(int fd);
 void close_log(int fd);
 
 /**
- * \fn int writening_log(unsigned short ID, char *msg)
+ * \fn int writing_log(unsigned short ID, char *msg)
  * \brief Écrit un message dans le fichier log de l'utilisateur désigné par ID.
  */
-int writening_log(unsigned short ID, char *msg);
+int writing_log(unsigned short ID, char *msg);
 
+/**
+ * \fn int reading_log(unsigned short ID)
+ * \brief Lit un message dans le fichier log de l'utilisateur désigné par ID.
+ * \return un code d'erreur.
+ */
+int reading_log(unsigned short ID);
 #endif 

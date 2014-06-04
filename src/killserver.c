@@ -15,20 +15,20 @@ int main ( int argc, const char *argv[] ){
     char buffer[BUFFER_SIZE];
 
     if ( -1 == ( fd = open( ".serverpid", O_RDONLY ) ) ) {
-perror( "open" );
-exit( EXIT_FAILURE );
+		perror( "open" );
+		exit( EXIT_FAILURE );
     }
     if ( -1 == ( size = read( fd, buffer, BUFFER_SIZE ) ) ) {
-perror( "read" );
-exit( EXIT_FAILURE );
+		perror( "read" );
+		exit( EXIT_FAILURE );
     }
     if ( size == BUFFER_SIZE ) {
-write(
-STDERR_FILENO,
-"Impossible de lire le PID",
-sizeof( char ) * strlen( "Impossible de lire le PID" )
-);
-exit( EXIT_FAILURE );
+		write(
+		STDERR_FILENO,
+		"Impossible de lire le PID",
+		sizeof( char ) * strlen( "Impossible de lire le PID" )
+		);
+		exit( EXIT_FAILURE );
     }
     pid = atoi( buffer );
 

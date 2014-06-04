@@ -48,7 +48,7 @@ void close_log(int fd){
 	}
 }
 
-int writening_log(unsigned short ID, char *msg){
+int writing_log(unsigned short ID, char *msg){
 	int result,i,size=145;
 	char *message;
 
@@ -67,3 +67,11 @@ int writening_log(unsigned short ID, char *msg){
 	return 0;
 }
 
+int reading_log(unsigned short ID){
+	int result;
+	
+	result=open_log(ID,READ);
+	read_log(result);
+	close_log(result);
+	return 0;
+}

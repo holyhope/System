@@ -20,6 +20,11 @@ typedef struct{
 Users connected[MAX_USERS];
 unsigned char numberOfUsers;
 
+/**
+ * \fn int truncate_string(char *msg)
+ * \brief renvoie la taille de la première ligne contenue dans msg.
+ */
+
 int truncate_string(char *msg);
 
 /**

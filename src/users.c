@@ -6,8 +6,8 @@ unsigned char error;
 int truncate_string(char *msg){
 	int i,size;
 	for( i=0 ; i < strlen(msg)-1 ; i++){
-		if(i!=0 && msg[i]=='\n'){
-			size=i;
+		if( i != 0 && msg[i] == '\n' ){
+			size = i;
 			break;
 		}
 	}
