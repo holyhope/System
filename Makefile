@@ -42,6 +42,9 @@ $(OBJ_FOLDER)/%.o: $(SRC_FOLDER)/%.c $(HEADER_FOLDER)/%.h $(OBJ_FOLDER)
 $(project): $(SRC_FOLDER)/$(project).c $(objects) $(BIN_FOLDER)
 	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $< $(objects)
 
+client: $(SRC_FOLDER)/client.c
+	$(CC) $(CFLAGS) $< -o $@
+
 doc.pdf: $(DOC_FOLDER)/doc.tex
 	pdflatex -output-directory $(DOC_FOLDER) $^
 	mv $(DOC_FOLDER)/$@ .
