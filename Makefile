@@ -45,16 +45,11 @@ $(project): $(SRC_FOLDER)/$(project).c $(objects) $(BIN_FOLDER)
 client: $(SRC_FOLDER)/client.c
 	$(CC) $(CFLAGS) $< -o $@
 
-doc.pdf: $(DOC_FOLDER)/doc.tex
-	pdflatex -output-directory $(DOC_FOLDER) $^
-	mv $(DOC_FOLDER)/$@ .
-	
-doxygen:
+doc.pdf:
 	doxygen
 
 clean:
 	rm -f $(OBJ_FOLDER)/*
-	rm -f $(DOC_FOLDER)/doc.{aux,log,toc}
 	rm -rf $(DOC_FOLDER)/html
 	rm -rf $(DOC_FOLDER)/latex
 
