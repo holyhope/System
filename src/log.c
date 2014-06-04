@@ -1,12 +1,10 @@
 #include "log.h"
 
-/*Ecrit un message d'erreur donne en parametre*/
 void exit_message(char *msg){
-	perror(msg);
+	perror( msg );
 	exit(EXIT_FAILURE);
 }
 
-/*Ouvre un fichier log contenant les messages de l'ID*/
 int open_log(unsigned short ID, int OPEN){
 	int fd;
 	char name[50];
@@ -21,7 +19,6 @@ int open_log(unsigned short ID, int OPEN){
 	return fd;
 }
 
-/*Ecrit un message dans le log correspondant*/
 void write_log(int fd, char *msg){
 	if(-1 == write(fd,msg,strlen(msg))){
 		exit_message("error writing in file");
@@ -31,7 +28,6 @@ void write_log(int fd, char *msg){
 	}
 }
 
-/*Lit le log spécifie*/
 void read_log(int fd){
 	char buff;
 	int result=1;
@@ -46,7 +42,6 @@ void read_log(int fd){
 	}
 }
 
-/*Ferme le fichier log*/
 void close_log(int fd){
 	if(-1 == close(fd)){
 		exit_message("error close file");
